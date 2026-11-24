@@ -12,7 +12,12 @@ The index below is synchronized automatically from GitHub Issues. Open a report 
 
 <!-- ISSUE-INDEX:START -->
 
-See the [live issue list](https://github.com/yzhang37/casio-calculator-issues/issues) while the index refreshes.
+**2 open · 0 closed · 2 total**
+
+| Issue | Report | Status |
+| --- | --- | --- |
+| [#2](https://github.com/yzhang37/casio-calculator-issues/issues/2) | CASIO BASIC: the same saved program displays Str 1 from RUN-MAT but not from PRGM | Open |
+| [#1](https://github.com/yzhang37/casio-calculator-issues/issues/1) | PhantomBackup — A renamed program reappears under its old name after USB eject | Open |
 
 <!-- ISSUE-INDEX:END -->
 
