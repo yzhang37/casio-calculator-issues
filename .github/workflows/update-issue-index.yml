@@ -1,0 +1,93 @@
+name: Update issue index
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, deleted, transferred]
+  push:
+    branches: [main]
+    paths:
+      - README.md
+      - .github/workflows/update-issue-index.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+# 同時只寫一份 README；各輪重新讀取全部問題，不依賴事件先後順序。
+concurrency:
+  group: readme-issue-index
+  cancel-in-progress: false
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Synchronize issue titles and states
+        # 固定已核對的 GitHub 官方 github-script v8，避免版本標籤移動改變執行環境。
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+        with:
+          script: |
+            /** escapeTitle() 將外部標題當作單行文字，避免表格分隔符或 HTML 改變首頁結構。 */
+            function escapeTitle(title) {
+              return title.replace(/[\r\n]+/g, ' ').replace(
+                /[&<>\[\]\\\x60|*_~]/g,
+                character => '&#' + character.codePointAt(0) + ';'
+              );
+            }
+
+            /**
+             * updateIssueIndex() 讀取所有分頁、排除 PR，依編號由新到舊產生標題與狀態。
+             * 只替換 README 的唯一標記區段；標記缺失或重複就失敗，保留其他說明。
+             * 內容相同時不提交，避免每次事件都產生無意義的 README 版本。
+             */
+            async function updateIssueIndex() {
+              const { owner, repo } = context.repo;
+              const records = await github.paginate(github.rest.issues.listForRepo, {
+                owner, repo, state: 'all', per_page: 100
+              });
+              const issues = records.filter(issue => !issue.pull_request)
+                .sort((left, right) => right.number - left.number);
+              const open = issues.filter(issue => issue.state === 'open').length;
+              const rows = issues.map(issue =>
+                '| [#' + issue.number + '](' + issue.html_url + ') | ' +
+                escapeTitle(issue.title) + ' | ' +
+                (issue.state === 'open' ? 'Open' : 'Closed') + ' |'
+              );
+              const index = [
+                '**' + open + ' open · ' + (issues.length - open) +
+                  ' closed · ' + issues.length + ' total**',
+                '',
+                ...(issues.length
+                  ? ['| Issue | Report | Status |', '| --- | --- | --- |', ...rows]
+                  : ['No issue reports yet.'])
+              ].join('\n');
+
+              const { data: file } = await github.rest.repos.getContent({
+                owner, repo, path: 'README.md'
+              });
+              const readme = Buffer.from(file.content, 'base64').toString('utf8');
+              const startMarker = '<!-- ISSUE-INDEX:START -->';
+              const endMarker = '<!-- ISSUE-INDEX:END -->';
+              const start = readme.indexOf(startMarker);
+              const end = readme.indexOf(endMarker);
+              if (start < 0 || end < start ||
+                  readme.indexOf(startMarker, start + startMarker.length) !== -1 ||
+                  readme.indexOf(endMarker, end + endMarker.length) !== -1) {
+                throw new Error('README must contain one ordered issue-index marker pair');
+              }
+              const updated = readme.slice(0, start + startMarker.length) +
+                '\n\n' + index + '\n\n' + readme.slice(end);
+              if (updated === readme) {
+                core.info('Issue index already current');
+                return;
+              }
+              await github.rest.repos.createOrUpdateFileContents({
+                owner, repo, path: 'README.md', sha: file.sha,
+                message: 'docs: synchronize issue index',
+                content: Buffer.from(updated).toString('base64')
+              });
+            }
+
+            await updateIssueIndex();
