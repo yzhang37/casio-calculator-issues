@@ -4,13 +4,19 @@ An independent community tracker for reproducible bugs in Casio graphing calcula
 
 [Browse issues](https://github.com/yzhang37/casio-calculator-issues/issues) · [Find your regional CASIO support channel](https://world.casio.com/support/)
 
-## Issues to reproduce
+## Issue tracker
 
-| Issue | What happens | Verified on |
-| --- | --- | --- |
-| [#1 · PhantomBackup](https://github.com/yzhang37/casio-calculator-issues/issues/1) | A program exported from PRGM and then renamed reappears under its old name after USB eject. | Physical GRAPH 35+ E II (`03.71.2200`) and GRAPH 90+ E (`03.81.2202`). |
+[All reports](https://github.com/yzhang37/casio-calculator-issues/issues?q=is%3Aissue) · [Open reports](https://github.com/yzhang37/casio-calculator-issues/issues?q=is%3Aissue%20is%3Aopen) · [Closed reports](https://github.com/yzhang37/casio-calculator-issues/issues?q=is%3Aissue%20is%3Aclosed)
 
-If you can test on another model or OS build, follow the [PhantomBackup steps](https://github.com/yzhang37/casio-calculator-issues/issues/1) with a disposable program and comment with your result, even if the bug does not reproduce. The fx-9750GIII has shown the same export path on physical hardware. The full USB round trip on that model is still open for testing.
+The index below is synchronized automatically from GitHub Issues. Open a report for reproduction steps, affected models and OS versions, and follow-up.
+
+<!-- ISSUE-INDEX:START -->
+
+See the [live issue list](https://github.com/yzhang37/casio-calculator-issues/issues) while the index refreshes.
+
+<!-- ISSUE-INDEX:END -->
+
+If you test another model or OS build, follow the steps in that issue and comment with your result, even if the behavior does not reproduce.
 
 ## Report a bug
 
